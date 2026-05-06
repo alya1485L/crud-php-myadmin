@@ -1,28 +1,20 @@
 <?php
 require_once 'config/koneksi.php';
 
-// Validasi ID dari URL
-$id = filter_var($_GET['id'] ?? null, FILTER_VALIDATE_INT);
-
-if ($id === false || $id === null) {
-    die('ID tidak valid');
+// Cek apakah id ada
+if (!isset($_GET['id']) || empty($_GET['id'])) {
+    die("ID tidak ditemukan");
 }
 
-// Prepare query
-$stmt = $conn->prepare("DELETE FROM tb_absensi WHERE id = ?");
+$id = intval($_GET['id']); // biar aman (hindari SQL injection)
 
-if (!$stmt) {
-    die('Prepare gagal: ' . $conn->error);
-}
+// Query hapus
+$query = "DELETE FROM tb_absensi WHERE id=$id";
 
-// Bind parameter
-$stmt->bind_param("i", $id);
-
-// Eksekusi
-if ($stmt->execute()) {
+if ($conn->query($query)) {
     header("Location: index.php");
     exit;
 } else {
-    echo "Gagal menghapus data: " . $stmt->error;
+    echo "Gagal hapus: " . $conn->error;
 }
 ?>
